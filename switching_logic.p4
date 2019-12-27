@@ -10,6 +10,9 @@ const bit<8> PMSWITCH_OPCODE_PERSIST = 0x01;
 const bit<8> PMSWITCH_OPCODE_ACK = 0x02;
 const bit<8> PMSWITCH_OPCODE_DROP = 0x03;
 const bit<8> PMSWITCH_MAGIC = 0xF0;
+const bit<16> PMSWITCH_MINPORT = 51000;
+const bit<16> PMSWITCH_MAXPORT = 51100;
+
 // Headers
 
 typedef bit<9>  egressSpec_t;
@@ -45,12 +48,12 @@ header udp_t {
     bit<16> udpChecksum;
 }
 
-header pmswitchops_t {
-    bit<8> magic;
-    bit<8> opcode;
-    bit<16> session_id;
-    bit<32> seg_id;
-}
+// header pmswitchops_t {
+//     // bit<8> magic;
+//     bit<8> opcode;
+//     bit<16> session_id;
+//     bit<32> seg_id;
+// }
 
 struct metadata {
     /* empty */
@@ -60,7 +63,7 @@ struct headers {
     ethernet_t   ethernet;
     ipv4_t       ipv4;
     udp_t        udp;
-    pmswitchops_t pmswitchops;
+    // pmswitchops_t pmswitchops;
 }
 
 // Parsers
@@ -91,35 +94,19 @@ parser PMSwitchParser(packet_in packet,
     }
 
     state parse_udp {
-        // There is a serious issue here. How can we know that the UDP payload is PMSwitch payload.
-        // We need to see the payload before we can know what the payload is. Is there any better way?
-        // A fixed port range?
+
         packet.extract(hdr.udp);
-        transition parse_pmswitch;
+        transition accept;
     }
 
-    state parse_pmswitch_magic {
-        packet.extract(hdr.pmswitchops);
-        transition select(hdr.pmswitchops.magic){
-            PMSWITCH_MAGIC : parse_pmswitch_ops;
-            default: accept;
-        }
-            
-    }
-    // Reject PMSwitch packet if the opcode is invalid.
-    state parse_pmswitch_magic {
-        transition select(hdr.pmswitchops.opcode){
-            PMSWITCH_OPCODE_INVALID : reject;
-            default: accept;
-        }
-    }
     
 
 }
 
 // Checksum verification
-// Not implemented
-
+control PMSwitchVerifyChecksum(inout headers hdr, inout metadata meta) {   
+    apply {  }
+}
 // Ingress processing
 control PMSwitchIngress(inout headers hdr,
                   inout metadata meta,
@@ -150,13 +137,12 @@ control PMSwitchIngress(inout headers hdr,
     
 
     apply {
-        if (hdr.ipv4.isValid() && !(hdr.pmswitchops.magic == PMSWITCH_MAGIC)) {
+        if (hdr.ipv4.isValid() && !((hdr.udp.destPort>=PMSWITCH_MINPORT) && (hdr.udp.destPort>=PMSWITCH_MAXPORT))) {
             // forward non-pmswitch normally
             ipv4_lpm.apply();
-        }
-        if(hdr.ipv4.isValid() && (hdr.pmswitchops.magic == PMSWITCH_MAGIC)){
+        }else
+        if(hdr.ipv4.isValid() && (hdr.udp.destPort>=PMSWITCH_MINPORT) && (hdr.udp.destPort>=PMSWITCH_MAXPORT)){
             // For PMswitch's packet 
-            
             // Trigger some action here.
             // switch
 
@@ -202,13 +188,13 @@ control PMSwitchDeparser(packet_out packet, in headers hdr) {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
         packet.emit(hdr.udp);
-        packet.emit(hdr.pmswitchops);
     }
 }
 
 
 V1Switch(
 PMSwitchParser(),
+PMSwitchVerifyChecksum(),
 PMSwitchIngress(),
 PMSwitchEgress(),
 UpdateChecksum(),
