@@ -6,12 +6,12 @@
 const bit<16> TYPE_IPV4 = 0x800;
 const bit<8> IPV4_PROTOCOL_UDP = 0x11;
 const bit<8> PMSWITCH_OPCODE_INVALID = 0x00;
-const bit<8> PMSWITCH_OPCODE_PERSIST = 0x01;
+const bit<8> PMSWITCH_OPCODE_PERSIST_NEED_ACK = 0x01;
 const bit<8> PMSWITCH_OPCODE_ACK = 0x02;
-const bit<8> PMSWITCH_OPCODE_DROP = 0x03;
-const bit<8> PMSWITCH_MAGIC = 0xF0;
-const bit<16> PMSWITCH_MINPORT = 51000;
-const bit<16> PMSWITCH_MAXPORT = 51100;
+const bit<8> PMSWITCH_OPCODE_BYPASS = 0x03;
+const bit<16> PMSWITCH_PORT = 51000;
+// const bit<16> PMSWITCH_MINPORT = 51000;
+// const bit<16> PMSWITCH_MAXPORT = 51100;
 
 // Headers
 
@@ -44,16 +44,15 @@ header ipv4_t {
 header udp_t {
     bit<16> srcPort;
     bit<16> destPort;
-    bit<16> length;
+    bit<16> udplength;
     bit<16> udpChecksum;
 }
 
-// header pmswitchops_t {
-//     // bit<8> magic;
-//     bit<8> opcode;
-//     bit<16> session_id;
-//     bit<32> seg_id;
-// }
+header pmswitchhds_t {
+    bit<8> type;            // Type of PMSwitch package: PERSIST_NEED_ACK, BYPASS or ACK_PERSIST
+    bit<16> session_id;
+    bit<32> seq_no;
+}
 
 struct metadata {
     /* empty */
@@ -63,7 +62,7 @@ struct headers {
     ethernet_t   ethernet;
     ipv4_t       ipv4;
     udp_t        udp;
-    // pmswitchops_t pmswitchops;
+    pmswitchhds_t pmswitchhds;
 }
 
 // Parsers
@@ -94,12 +93,18 @@ parser PMSwitchParser(packet_in packet,
     }
 
     state parse_udp {
-
         packet.extract(hdr.udp);
-        transition accept;
+        transition select(hdr.udp.destPort){
+            PMSWITCH_PORT: parse_PMSwitch;
+            default: accept;
+        }
+        
     }
 
-    
+    state parse_PMSwitch{
+        packet.extract(hdr.pmswitchhds);
+        transition accept;
+    }
 
 }
 
@@ -137,18 +142,22 @@ control PMSwitchIngress(inout headers hdr,
     
 
     apply {
-        if (hdr.ipv4.isValid() && !((hdr.udp.destPort>=PMSWITCH_MINPORT) && (hdr.udp.destPort>=PMSWITCH_MAXPORT))) {
-            // forward non-pmswitch normally
-            ipv4_lpm.apply();
-        }else
-        if(hdr.ipv4.isValid() && (hdr.udp.destPort>=PMSWITCH_MINPORT) && (hdr.udp.destPort>=PMSWITCH_MAXPORT)){
-            // For PMswitch's packet 
-            // Trigger some action here.
-            // switch
+        if (hdr.ipv4.isValid()){
+            if(hdr.udp.isValid()){
+                if(hdr.udp.destPort == PMSWITCH_PORT){
+                    if(hdr.pmswitchhds.isValid()){
+                        if(hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NEED_ACK){
+                            // Forward the request to memctl part.
 
-            // Finally we need to forward the packet in old fashion way.
+
+
+                        }
+                    }
+                }
+            }
             ipv4_lpm.apply();
         }
+
     }
 }
 
@@ -188,6 +197,7 @@ control PMSwitchDeparser(packet_out packet, in headers hdr) {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
         packet.emit(hdr.udp);
+        packet.emit(hdr.pmswitchhds);
     }
 }
 
