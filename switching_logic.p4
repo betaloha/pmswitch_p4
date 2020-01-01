@@ -155,7 +155,9 @@ control PMSwitchIngress(inout headers hdr,
                     }
                 }
             }
+            // Apply IPv4 routing
             ipv4_lpm.apply();
+            // How can we detect or change route when link "failure" happens?
         }
 
     }
