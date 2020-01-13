@@ -136,26 +136,42 @@ control PMSwitchProcessing(inout headers hdr,
         default_action  = dropPacket;
     }
     
+    // table forwardIPv6 {
+    //     key             = { hdr.ipv6.dst : exact; }
+    //     actions         = { forwardPacket; dropPacket; }
+    //     size            = 64;
+    //     default_action  = dropPacket;
+    // }
 
-    apply {
-        if (hdr.ipv4.isValid()){
-            if(hdr.udp.isValid()){
-                if(hdr.udp.dport == PMSWITCH_PORT){
-                    if(hdr.pmswitchhds.isValid()){
-                        if(hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NEED_ACK){
-                            // Forward the request to memctl part.
+    // Old code, need to reimplement this.
+
+    // apply {
+    //     if (hdr.ipv4.isValid()){
+    //         if(hdr.udp.isValid()){
+    //             if(hdr.udp.dport == PMSWITCH_PORT){
+    //                 if(hdr.pmswitchhds.isValid()){
+    //                     if(hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NEED_ACK){
+    //                         // Forward the request to memctl part.
 
 
 
-                        }
-                    }
-                }
-            }
-            // Apply IPv4 routing
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         // Apply IPv4 routing
+    //         forwardIPv4.apply();
+    //         // How can we detect or change route when link "failure" happens?
+    //     }
+    // }
+    // -----------------------------------
+     apply {
+        if (hdr.ipv4.isValid())
             forwardIPv4.apply();
-            // How can we detect or change route when link "failure" happens?
-        }
-
+        // else if (hdr.ipv6.isValid())
+        //     forwardIPv6.apply();
+        else
+            dropPacket();
     }
 }
 
