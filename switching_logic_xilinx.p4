@@ -125,10 +125,13 @@ control PMSwitchProcessing(inout headers hdr,
     action forwardPacket(switch_port_t value) {
         ctrl.egress_port = value;
     }
-    action dropPacket() {
-        ctrl.egress_port = 0xF;
+    action forwardAndCopyPacket(switch_port_t value) {
+        ctrl.egress_port = value&0x0008;    // Assume active low port selector
     }
-    
+    action dropPacket() {
+        ctrl.egress_port = 0xF; // Active low?
+    }
+    // We should be able to, some how, share the same table.
     table forwardIPv4 {
         key             = { hdr.ipv4.dst : ternary; }
         actions         = { forwardPacket; dropPacket; }
@@ -136,6 +139,12 @@ control PMSwitchProcessing(inout headers hdr,
         default_action  = dropPacket;
     }
     
+    table forwardAndCopyIPv4{
+        key             = { hdr.ipv4.dst : ternary; }
+        actions         = { forwardAndCopyPacket; dropPacket; }
+        size            = 63;
+        default_action  = dropPacket;
+    }
     // table forwardIPv6 {
     //     key             = { hdr.ipv6.dst : exact; }
     //     actions         = { forwardPacket; dropPacket; }
@@ -166,12 +175,18 @@ control PMSwitchProcessing(inout headers hdr,
     // }
     // -----------------------------------
      apply {
-        if (hdr.ipv4.isValid())
-            forwardIPv4.apply();
+        //  We still need to filter out the packet from the processor.
+        if (hdr.ipv4.isValid()){
+            if(hdr.pmswitchhds.isValid()){
+                forwardAndCopyIPv4.apply();
+            }else{
+                forwardIPv4.apply();
+            }
         // else if (hdr.ipv6.isValid())
         //     forwardIPv6.apply();
-        else
+        }else{
             dropPacket();
+        }
     }
 }
 
