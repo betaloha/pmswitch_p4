@@ -43,12 +43,13 @@
 // }
 
 typedef bit<32> hashedAddress_t;
-typedef bit<8> PMSwitchOPS_t;
-typedef bit<8> ackCount_t;
+typedef bit<8>  PMSwitchOPS_t;
+typedef bit<8>  ackCount_t;
 struct PMswitch_metadata_t {
     hashedAddress_t     hashedAddress;
     PMSwitchOPS_t       PMSwitchOPS;
     ackCount_t          ackCount;
+    //bit<1>              ackMode;
 }
 
 

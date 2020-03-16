@@ -1,7 +1,7 @@
 #include "xilinx_custom.p4"
 #include "common.p4"
 
-control PMSwitchReqProcessing(inout headers hdr,
+control PMSwitchProcessing(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
     action AccessMemory() {
         ctrl.PMSwitchOPS    = hdr.pmswitchhds.type;
@@ -17,7 +17,7 @@ control PMSwitchReqProcessing(inout headers hdr,
      apply {
         //  We still need to filter out the packet from the processor.
         if (hdr.ipv4.isValid()&& hdr.udp.isValid() && hdr.pmswitchhds.isValid()){
-            if((hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NEED_ACK)||(hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NO_ACK)){
+            if((hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NEED_ACK)||(hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NO_ACK)||(hdr.pmswitchhds.type == PMSWITCH_OPCODE_REPONSE)||(hdr.pmswitchhds.type == PMSWITCH_OPCODE_ACK)){
                 AccessMemory();
             }else{
                 bypass();
@@ -28,4 +28,4 @@ control PMSwitchReqProcessing(inout headers hdr,
     }
 }
 
-XilinxSwitch(PMSwitchCommonParser(), PMSwitchReqProcessing(), PMSwitchCommonDeparser()) main;
+XilinxSwitch(PMSwitchCommonParser(), PMSwitchProcessing(), PMSwitchCommonDeparser()) main;
