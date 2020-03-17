@@ -54,7 +54,7 @@ header pmswitchhds_h {
     bit<32> PMAddress;      // Hashed identifier, used as address
     // 53
     bit<8>  ackCount;       // Ack count, used to track number of Ack required to remove the packet from the memory.
-    bit<4>  padding;         // Padding to make payload 8-byte aligned
+    bit<16>  padding;         // Padding to make payload 8-byte aligned
 }
 // 56 Bytes
 // --------------------------
