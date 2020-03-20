@@ -14,7 +14,7 @@ const bit<32>   INVALID_ADDR = 0xFFFFFFFF;                 // For debug purpose.
 typedef bit<48> MacAddress;
 typedef bit<32> IPv4Address;
 // Headers-------------------
-
+// SOF
 // Ethernet header 14 Bytes
 header ethernet_h {
     MacAddress          dst;
@@ -47,16 +47,19 @@ header udp_h {
 // 42 Bytes
 // PMSwitch header 11+3 Bytes
 header pmswitchhds_h {
-    bit<8>  type;            // Type of PMSwitch package: PERSIST_NEED_ACK, BYPASS or ACK_PERSIST
+    bit<8>  type;           // Type of PMSwitch package: PERSIST_NEED_ACK, BYPASS or ACK_PERSIST
+    bit<8>  ackCount;       // Ack count, used to track number of Ack required to remove the packet from the memory.
     bit<16> session_id;     // Session ID for each client           ---| Used as request identifier
     bit<32> seq_no;         // Sequence Number for each request     ---|
-    // 49                   // The offset of PMAddress.
+    // 50                   // The offset of PMAddress.
     bit<32> PMAddress;      // Hashed identifier, used as address
-    // 53
-    bit<8>  ackCount;       // Ack count, used to track number of Ack required to remove the packet from the memory.
-    bit<16>  padding;         // Padding to make payload 8-byte aligned
+    // 54
+    bit<16>  padding;       // Padding to make the payload 8-byte aligned
 }
 // 56 Bytes
+// Payload
+// Total size must not exceed 1024 bytes.
+// EOF
 // --------------------------
 
 // Struct of all headers
