@@ -86,13 +86,20 @@ parser PMSwitchCommonParser(packet_in pkt,
     state parse_ipv4 {
         pkt.extract(hdr.ipv4);
         transition select(hdr.ipv4.proto) {
-            IPV4_PROTOCOL_UDP   :   parse_udp;
+            IPV4_PROTOCOL_UDP   :   parse_udp_dport;
             default             :   accept;
         }
     }
-    state parse_udp {
+    // Since we share the same parser for both direction, we must check both src and dest ports.
+    state parse_udp_dport {
         pkt.extract(hdr.udp);
         transition select(hdr.udp.dport){
+            PMSWITCH_PORT   :   parse_PMSwitch;
+            default         :   parse_udp_sport;
+        }
+    }
+    state parse_udp_sport {
+        transition select(hdr.udp.sport){
             PMSWITCH_PORT   :   parse_PMSwitch;
             default         :   accept;
         }
