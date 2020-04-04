@@ -4,8 +4,9 @@ const bit<8>    IPV4_PROTOCOL_UDP = 0x11;
 const bit<8>    PMSWITCH_OPCODE_INVALID = 0x00;            // Not used
 const bit<8>    PMSWITCH_OPCODE_PERSIST_NEED_ACK = 0x01;   // Persist using PMSwitch Protocol
 const bit<8>    PMSWITCH_OPCODE_ACK = 0x02;                // Ack from other switch
-const bit<8>    PMSWITCH_OPCODE_PERSIST_NO_ACK = 0x03;     // Persist 
+const bit<8>    PMSWITCH_BYPASS = 0x03;                    // Do not persist, let end host handle reTx.
 const bit<8>    PMSWITCH_OPCODE_REPONSE = 0x04;            // Response from the server
+const bit<8>    PMSWITCH_OPCODE_RECOVER = 0x05;            // Response from the server
 const bit<8>    PMSWITCH_OPCODE_NOOP = 0xFF;               // NO-OP, just forward whatever in the pipeline
 const bit<16>   PMSWITCH_PORT = 51000;                     // Reserved port number
 
@@ -104,6 +105,7 @@ parser PMSwitchCommonParser(packet_in pkt,
             default         :   accept;
         }
     }
+    // If either host or dest port match reserved port number, parse the PMSwtich packet.
     state parse_PMSwitch{
         pkt.extract(hdr.pmswitchhds);
         transition accept;

@@ -17,7 +17,7 @@ control PMSwitchProcessing(inout headers hdr,
      apply {
         //  We still need to filter out the packet from the processor.
         if (hdr.ipv4.isValid()&& hdr.udp.isValid() && hdr.pmswitchhds.isValid()){
-            if((hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NEED_ACK)||(hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NO_ACK)||(hdr.pmswitchhds.type == PMSWITCH_OPCODE_REPONSE)||(hdr.pmswitchhds.type == PMSWITCH_OPCODE_ACK)){
+            if((hdr.pmswitchhds.type == PMSWITCH_OPCODE_PERSIST_NEED_ACK)){
                 AccessMemory();
             }else{
                 bypass();
