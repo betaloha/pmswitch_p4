@@ -1,8 +1,18 @@
-all: clean pmSwitch_switch
+all: clean pmSwitch_request pmSwitch_ack pmSwitch_ack_gen
 
-pmSwitch_switch: pmSwitch_switch.p4
-	p4c-sdnet pmSwitch_switch.p4 -o pmSwitch_switch.sdnet
-	sdnet pmSwitch_switch.sdnet -busType axi -workDir pmSwitch_switch -lineClock 157 -busWidth 64
-	
+pmSwitch_request: pmSwitch_request.p4
+	p4c-sdnet $@.p4 -o $@.sdnet --toplevel_name $@
+	sdnet $@.sdnet -busType axi -workDir $@ -lineClock 300 -busWidth 64
+
+pmSwitch_ack: pmSwitch_ack.p4
+	p4c-sdnet $@.p4 -o $@.sdnet --toplevel_name $@
+	sdnet $@.sdnet -busType axi -workDir $@ -lineClock 300 -busWidth 64
+
+pmSwitch_ack_gen: pmSwitch_ack_gen.p4
+	p4c-sdnet $@.p4 -o $@.sdnet --toplevel_name $@
+	sdnet $@.sdnet -busType axi -workDir $@ -lineClock 300 -busWidth 64
+
 clean:
-	-rm -r *.sdnet pmSwitch_switch
+	-rm -r *.sdnet pmSwitch_request pmSwitch_ack pmSwitch_ack_gen
+
+
