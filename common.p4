@@ -8,8 +8,8 @@ const bit<8>    PMSWITCH_OPCODE_REPONSE = 0x03;            // Response from the 
 const bit<8>    PMSWITCH_OPCODE_RECOVER = 0x05;            // Response from the server
 const bit<8>    PMSWITCH_OPCODE_NOOP = 0xFF;               // NO-OP, just forward whatever in the pipeline
 const bit<16>   PMSWITCH_PORT = 51000;                     // Reserved port number
-
-const bit<32>   INVALID_ADDR = 0xFFFFFFFF;                 // For debug purpose.
+// Valid address starts from 0x80000000 to 0xFFFFFFFF
+const bit<32>   INVALID_ADDR = 0x7FFFFFFF;                 // For debug purpose.
 
 typedef bit<48> MacAddress;
 typedef bit<32> IPv4Address;
