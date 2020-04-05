@@ -1,6 +1,7 @@
 #include "xilinx_custom.p4"
 #include "common.p4"
 
+// Converts request packet to switch ACK
 control PMSwitchProcessing(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
     action genAck() {
