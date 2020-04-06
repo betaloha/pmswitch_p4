@@ -1,7 +1,7 @@
 #include "xilinx_custom.p4"
 #include "common.p4"
 
-control PMSwitchProcessing(inout headers hdr,
+control PMSwitchRequestProcessing(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
     action AccessMemory() {
         ctrl.PMSwitchOPS    = hdr.pmswitchhds.type;
@@ -28,4 +28,4 @@ control PMSwitchProcessing(inout headers hdr,
     }
 }
 
-XilinxSwitch(PMSwitchCommonParser(), PMSwitchProcessing(), PMSwitchCommonDeparser()) main;
+XilinxSwitch(PMSwitchCommonParser(), PMSwitchRequestProcessing(), PMSwitchCommonDeparser()) main;

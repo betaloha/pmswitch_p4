@@ -2,7 +2,7 @@
 #include "common.p4"
 
 // Converts request packet to switch ACK
-control PMSwitchProcessing(inout headers hdr,
+control PMSwitchAckGenerator(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
     action genAck() {
         /*ctrl.PMSwitchOPS    = hdr.pmswitchhds.type;
@@ -46,4 +46,4 @@ control PMSwitchProcessing(inout headers hdr,
     }
 }
 
-XilinxSwitch(PMSwitchCommonParser(), PMSwitchProcessing(), PMSwitchCommonDeparser()) main;
+XilinxSwitch(PMSwitchCommonParser(), PMSwitchAckGenerator(), PMSwitchCommonDeparser()) main;
