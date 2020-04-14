@@ -1,5 +1,5 @@
 #include "xilinx_custom.p4"
-#include "common.p4"
+#include "common_ack.p4"
 
 control PMSwitchAckProcessing(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
@@ -28,4 +28,4 @@ control PMSwitchAckProcessing(inout headers hdr,
     }
 }
 
-XilinxSwitch(PMSwitchCommonParser(), PMSwitchAckProcessing(), PMSwitchCommonDeparser()) main;
+XilinxSwitch(PMSwitch_ack_Parser(), PMSwitchAckProcessing(), PMSwitch_ack_Deparser()) main;

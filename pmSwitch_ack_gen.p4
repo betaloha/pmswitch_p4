@@ -1,5 +1,5 @@
 #include "xilinx_custom.p4"
-#include "common.p4"
+#include "common_ack_gen.p4"
 
 // Converts request packet to switch ACK
 control PMSwitchAckGenerator(inout headers hdr,
@@ -17,6 +17,8 @@ control PMSwitchAckGenerator(inout headers hdr,
         bit<16> sourcePort = hdr.udp.sport;
         hdr.udp.sport = hdr.udp.dport;
         hdr.udp.dport = sourcePort;
+        // Disable UDP checksum, IPv4 only
+        hdr.udp.chksum = 0;
         // Swap Src and Dst MAC address
         MacAddress srcMac = hdr.ethernet.src;
         hdr.ethernet.src = hdr.ethernet.dst;
@@ -46,4 +48,4 @@ control PMSwitchAckGenerator(inout headers hdr,
     }
 }
 
-XilinxSwitch(PMSwitchCommonParser(), PMSwitchAckGenerator(), PMSwitchCommonDeparser()) main;
+XilinxSwitch(PMSwitch_ack_gen_Parser(), PMSwitchAckGenerator(), PMSwitch_ack_gen_Deparser()) main;

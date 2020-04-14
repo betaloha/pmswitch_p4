@@ -1,5 +1,5 @@
 #include "xilinx_custom.p4"
-#include "common.p4"
+#include "common_request.p4"
 
 control PMSwitchRequestProcessing(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
@@ -28,4 +28,4 @@ control PMSwitchRequestProcessing(inout headers hdr,
     }
 }
 
-XilinxSwitch(PMSwitchCommonParser(), PMSwitchRequestProcessing(), PMSwitchCommonDeparser()) main;
+XilinxSwitch(PMSwitch_request_Parser(), PMSwitchRequestProcessing(), PMSwitch_request_Deparser()) main;
