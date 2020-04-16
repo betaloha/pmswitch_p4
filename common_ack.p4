@@ -8,6 +8,9 @@ const bit<8>    PMSWITCH_OPCODE_REPONSE = 0x03;            // Response from the 
 const bit<8>    PMSWITCH_OPCODE_RECOVER = 0x05;            // Response from the server
 const bit<8>    PMSWITCH_OPCODE_NOOP = 0xFF;               // NO-OP, just forward whatever in the pipeline
 const bit<16>   PMSWITCH_PORT = 51000;                     // Reserved port number
+const bit<16>   PMSWITCH_PORT_2 = 51001;                     // Reserved port number
+const bit<16>   PMSWITCH_PORT_3 = 51002;                     // Reserved port number
+const bit<16>   PMSWITCH_PORT_4 = 51003;                     // Reserved port number
 // Valid address starts from 0x80000000 to 0xFFFFFFFF
 const bit<32>   INVALID_ADDR = 0x7FFFFFFF;                 // For debug purpose.
 
@@ -86,21 +89,17 @@ parser PMSwitch_ack_Parser(packet_in pkt,
     state parse_ipv4 {
         pkt.extract(hdr.ipv4);
         transition select(hdr.ipv4.proto) {
-            IPV4_PROTOCOL_UDP   :   parse_udp_dport;
+            IPV4_PROTOCOL_UDP   :   parse_udp_sport;
             default             :   accept;
         }
     }
-    // Since we share the same parser for both direction, we must check both src and dest ports.
-    state parse_udp_dport {
-        pkt.extract(hdr.udp);
-        transition select(hdr.udp.dport){
-            PMSWITCH_PORT   :   parse_PMSwitch;
-            default         :   parse_udp_sport;
-        }
-    }
     state parse_udp_sport {
+        pkt.extract(hdr.udp);
         transition select(hdr.udp.sport){
             PMSWITCH_PORT   :   parse_PMSwitch;
+            PMSWITCH_PORT_2 :   parse_PMSwitch;
+            PMSWITCH_PORT_3 :   parse_PMSwitch;
+            PMSWITCH_PORT_4 :   parse_PMSwitch;
             default         :   accept;
         }
     }
