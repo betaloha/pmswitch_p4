@@ -27,6 +27,10 @@ control PMSwitchAckGenerator(inout headers hdr,
         // Change PMSwitch OPS to switch ACK
         hdr.pmswitchhds.type = PMSWITCH_OPCODE_ACK;
 
+        // We will trim the packet, need to change length in IPv4 and UDP headers.
+        hdr.ipv4.len = 42;
+        hdr.udp.len = 22;
+
     }
     action bypass() {
         ctrl.PMSwitchOPS    = PMSWITCH_OPCODE_NOOP;
