@@ -28,8 +28,23 @@ control PMSwitchAckGenerator(inout headers hdr,
         hdr.pmswitchhds.type = PMSWITCH_OPCODE_ACK;
 
         // We will trim the packet, need to change length in IPv4 and UDP headers.
-        hdr.ipv4.len = 42;
-        hdr.udp.len = 22;
+        hdr.udp.len = 30;
+        bit<16> ipv4_old_len = hdr.ipv4.len;
+        hdr.ipv4.len = 20+hdr.udp.len;
+        
+
+
+    
+        // Recompute IPv4 checksum, RFC 1624
+        //hdr.ipv4.chksum = ~(~hdr.ipv4.chksum + (~ipv4_old_len) + hdr.ipv4.len);
+        bit<17>newchksum_INV = ((bit<17>)(~hdr.ipv4.chksum)) + ((bit<17>)(~ipv4_old_len)) + (bit<17>)hdr.ipv4.len;
+        // One's compliment carry.
+        //bit<16>newchksum_INV_CR = (bit<16>)(newchksum_INV+(newchksum_INV/65536));
+        // Temp fix, may cause error in corner cases.
+        bit<16>newchksum_INV_CR = (bit<16>)(newchksum_INV+1);
+        bit<16>newchksum = ~((bit<16>)newchksum_INV_CR);
+        hdr.ipv4.chksum = newchksum;
+        
 
     }
     action bypass() {
