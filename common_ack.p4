@@ -50,7 +50,7 @@ header udp_h {
     bit<16>             chksum;
 }
 // 42 Bytes
-// PMSwitch header 11+3 Bytes
+// PMSwitch header 12+2 Bytes
 header pmswitchhds_h {
     bit<8>  type;           // Type of PMSwitch package: PERSIST_NEED_ACK, BYPASS or ACK_PERSIST
     bit<8>  ackCount;       // Ack count, used to track number of Ack required to remove the packet from the memory.
