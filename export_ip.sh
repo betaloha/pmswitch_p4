@@ -1,5 +1,5 @@
 #!/bin/bash
-modules=(pmSwitch_request pmSwitch_ack pmSwitch_ack_gen)
+modules=(pmSwitch_request pmSwitch_ack pmSwitch_ack_gen pmSwitch_cache_request pmSwitch_cache_response_gen)
 
 for i in ${modules[@]}; do
 cd $i/$i

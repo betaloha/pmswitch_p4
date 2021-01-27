@@ -5,7 +5,8 @@ const bit<8>    PMSWITCH_OPCODE_INVALID = 0x00;            // Not used
 const bit<8>    PMSWITCH_OPCODE_PERSIST_NEED_ACK = 0x01;   // Persist using PMSwitch Protocol
 const bit<8>    PMSWITCH_OPCODE_ACK = 0x02;                // Ack from other switch
 const bit<8>    PMSWITCH_OPCODE_REPONSE = 0x03;            // Response from the server
-const bit<8>    PMSWITCH_OPCODE_RECOVER = 0x05;            // Response from the server
+const bit<8>    PMSWITCH_OPCODE_RECOVER = 0x05;            // Recovery request
+const bit<8>    PMSWITCH_OPCODE_CACHE_RESPONSE = 0x06;     // Response from the cache
 const bit<8>    PMSWITCH_OPCODE_NOOP = 0xFF;               // NO-OP, just forward whatever in the pipeline
 const bit<16>   PMSWITCH_PORT = 51000;                     // Reserved port number
 // Valid address starts from 0x80000000 to 0xFFFFFFFF
@@ -45,7 +46,7 @@ header udp_h {
     bit<16>             chksum;
 }
 // 42 Bytes
-// PMSwitch header 11+3 Bytes
+// PMSwitch header 12+2 Bytes
 header pmswitchhds_h {
     bit<8>  type;           // Type of PMSwitch package: PERSIST_NEED_ACK, BYPASS or ACK_PERSIST
     bit<8>  ackCount;       // Ack count, used to track number of Ack required to remove the packet from the memory.
