@@ -7,7 +7,7 @@
 // Using sequence number allows PMNet to log the request without checking if that address contains non-ACKed log.
 // The read caching part will use real hashedAddress to index the PM.
 // This should maintain correctness without the performance impact of using a softcore in write (update log) path.
-
+//////////////////////
 control PMSwitchRequestProcessing(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
     action AccessMemory() {
