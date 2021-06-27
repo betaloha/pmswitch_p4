@@ -12,7 +12,7 @@ control PMSwitchRequestProcessing(inout headers hdr,
                   inout PMswitch_metadata_t ctrl) {
     action AccessMemory() {
         ctrl.PMSwitchOPS    = hdr.pmswitchhds.type;
-        ctrl.hashedAddress  = hdr.pmswitchhds.seq_no+0x80000000;
+        ctrl.hashedAddress  = (hdr.pmswitchhds.seq_no*2048)+0x80000000;
         ctrl.ackCount       = hdr.pmswitchhds.ackCount;
     }
     action bypass() {
